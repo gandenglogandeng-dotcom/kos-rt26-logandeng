@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data penghuni kos</title>
+<style>
+  :root {
+    --gradasi: linear-gradient(90deg, #4d1416 0%, #6b1e22 55%, #7c2327 100%);
+    --latar: #f6f0e9; --kertas: #ffffff; --tinta: #2b1a1b; --samar: #62554f; --garis: #e2d8ce;
+    --brand: #7a2024; --brand-tua: #571619; --brand-muda: #f7e7e4;
+    --merah: #a02c2c; --merah-muda: #fbe9e9; --abu: #eee7df; --bayang: 0 1px 2px rgba(43,26,27,.14);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--latar); color: var(--tinta); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 18px; line-height: 1.5; }
+  [hidden] { display: none !important; }
+  button, input { font: inherit; color: inherit; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
+  .lebar { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+  .kepala { position: relative; background: var(--gradasi); color: #fff; padding: 16px 0 20px; }
+  .kepala::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: linear-gradient(90deg, #c9963a 0 42%, #3f67d8 42% 91%, #2f8a5a 91% 100%); }
+  .brand { margin: 0 0 4px; font-size: 12px; font-weight: 600; letter-spacing: .09em; color: #efc36a; }
+  .desa { margin: 0; font-size: 14px; opacity: .88; }
+  h1 { margin: 0; font-size: 24px; }
+  .statistik { display: flex; gap: 28px; margin-top: 10px; }
+  .statistik b { display: block; font-size: 30px; font-variant-numeric: tabular-nums; }
+  .statistik span { font-size: 14px; opacity: .92; }
+  main { padding: 0 16px calc(48px + env(safe-area-inset-bottom, 0px)); }
+  .bar-atas { display: flex; flex-wrap: wrap; gap: 0 16px; align-items: center; justify-content: space-between; padding: 8px 0 2px; color: var(--samar); font-size: 15px; }
+  .btn, .btn-garis { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 16px; border-radius: 12px; font-weight: 700; text-decoration: none; cursor: pointer; text-align: center; }
+  .btn { border: 0; background: var(--brand); color: #fff; }
+  .btn-garis { border: 1.5px solid var(--brand); background: #fff; color: var(--brand-tua); }
+  .btn-teks { border: 0; background: transparent; color: var(--brand-tua); font-weight: 700; cursor: pointer; min-height: 48px; padding: 0 6px; }
+  .btn-teks.garis { text-decoration: underline; }
+  .lebar-penuh { width: 100%; }
+  .banner { margin: 8px 0; padding: 12px 14px; border-radius: 10px; background: var(--merah-muda); color: var(--merah); }
+  #status { padding-top: 16px; }
+  #statusTeks.galat { padding: 14px; border-radius: 12px; background: var(--merah-muda); color: var(--merah); }
+  .lengket { position: sticky; top: 0; z-index: 4; margin: 0 -16px; padding: 8px 16px 10px; background: var(--latar); }
+  input[type="search"] { width: 100%; min-height: 54px; padding: 10px 16px; border: 1.5px solid var(--garis); border-radius: 12px; background: #fff; }
+  .judul-bagian { margin: 22px 0 10px; font-size: 20px; }
+  .hasil { margin: 0 2px 10px; font-weight: 600; }
+  .lencana { display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 14px; font-weight: 700; background: var(--abu); color: var(--samar); }
+  .kisi { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .kartu-kos { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; width: 100%; padding: 16px 18px; text-align: left; border: 0; border-radius: 14px; background: var(--kertas); box-shadow: var(--bayang); cursor: pointer; min-height: 96px; }
+  .kos-nama { font-size: 21px; font-weight: 750; overflow-wrap: anywhere; }
+  .kos-angka b { font-size: 30px; font-variant-numeric: tabular-nums; margin-right: 6px; }
+  .kos-buka { font-weight: 700; color: var(--brand-tua); }
+  .kecil { font-size: 15px; color: var(--samar); }
+  .bar-kembali { position: sticky; top: 0; z-index: 4; display: flex; align-items: center; gap: 10px; margin: 0 -16px; padding: 4px 16px; background: var(--latar); border-bottom: 1px solid var(--garis); }
+  .bar-kembali .kecil { margin-left: auto; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .kos-kepala { margin: 14px 0 4px; font-size: 26px; overflow-wrap: anywhere; }
+  .panel { margin-top: 12px; padding: 14px 16px; background: var(--kertas); border-radius: 14px; box-shadow: var(--bayang); }
+  .panel .dua { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .orang { padding: 16px; background: var(--kertas); border-radius: 14px; box-shadow: var(--bayang); }
+  .orang.keluar { background: #f9f5f0; }
+  .orang-atas { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: space-between; }
+  .orang-nama { font-size: 21px; font-weight: 750; overflow-wrap: anywhere; }
+  .orang-hp { margin: 4px 0 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .orang-aksi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .orang-aksi .utama { grid-column: 1 / -1; }
+  .kosong { padding: 30px 18px; text-align: center; color: var(--samar); background: var(--kertas); border-radius: 14px; box-shadow: var(--bayang); }
+  .kosong b { display: block; margin-bottom: 4px; color: var(--tinta); font-size: 20px; }
+  .latar { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(43,15,17,.75); }
+  .ktp { width: 100%; max-width: 760px; max-height: 100%; display: flex; flex-direction: column; background: #fff; border-radius: 14px; overflow: hidden; }
+  .ktp-kepala { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 14px 12px 18px; border-bottom: 1px solid var(--garis); }
+  .ktp-kepala h2 { margin: 0; font-size: 20px; overflow-wrap: anywhere; }
+  .ktp-kepala p { margin: 0; color: var(--samar); font-size: 14px; }
+  .ktp-isi { flex: 1; padding: 14px; overflow: auto; text-align: center; }
+  .ktp-isi img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--garis); }
+  .ktp-isi iframe { width: 100%; height: 60vh; border: 1px solid var(--garis); border-radius: 8px; }
+  @media (min-width: 720px) { h1 { font-size: 30px; } .kisi { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .latar { padding: 0; } .ktp { max-width: none; height: 100%; border-radius: 0; } }
+  @media print {
+    .statistik, .bar-atas, .bar-kembali, .orang-aksi, .cetak, .latar { display: none !important; }
+    .orang, .panel { box-shadow: none; border: 1px solid #999; }
+    .kisi { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="kepala">
+  <div class="lebar">
+    <p class="brand" id="brandTeks">PENDATAAN PENGHUNI KOS</p>
+    <p class="desa" id="namaDesa">&nbsp;</p>
+    <h1>Data penghuni kos</h1>
+    <div class="statistik" id="statistik" hidden>
+      <div><b id="nAktif">0</b><span>penghuni aktif</span></div>
+      <div><b id="nKos">0</b><span>kos terdaftar</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="lebar">
+  <section id="status">
+    <p id="statusTeks" role="status">Memuat data…</p>
+    <button type="button" class="btn lebar-penuh" id="btnCoba" hidden>Coba lagi</button>
+  </section>
+
+  <div id="app" hidden>
+    <section id="layarBeranda">
+      <div class="bar-atas">
+        <span id="diperbarui"></span>
+        <button type="button" class="btn-teks garis" id="btnSegarkan">Segarkan data</button>
+      </div>
+      <p class="banner" id="banner" role="alert" hidden></p>
+      <div class="lengket"><input type="search" id="cari" aria-label="Cari penghuni" placeholder="Cari nama penghuni…" autocomplete="off"></div>
+      <div id="isiBeranda"></div>
+    </section>
+
+    <section id="layarKos" hidden>
+      <div class="bar-kembali">
+        <button type="button" class="btn-teks" id="btnKembali">‹ Semua kos</button>
+        <span class="kecil" id="namaKosBar"></span>
+      </div>
+      <div id="isiKos"></div>
+    </section>
+  </div>
+</main>
+
+<div class="latar" id="ktpLatar" hidden>
+  <div class="ktp" role="dialog" aria-modal="true">
+    <div class="ktp-kepala">
+      <div><h2 id="ktpJudul"></h2><p id="ktpSub"></p></div>
+      <button type="button" class="btn" id="ktpTutup">Tutup</button>
+    </div>
+    <div class="ktp-isi" id="ktpIsi"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TOKEN = new URLSearchParams(location.search).get('k') || '';
+  var DATA = null;
+  var kataCari = '';
+  var kosBuka = '';
+  var lihatKeluar = false;
+  var BATAS_CARI = 40;
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, kelas, teks) { var e = document.createElement(tag); if (kelas) e.className = kelas; if (teks != null) e.textContent = teks; return e; }
+  function angkaWa(hp) { return String(hp || '').replace(/^0/, '62'); }
+  function rapikanHp(hp) { return String(hp || '').replace(/(\d{4})(?=\d)/g, '$1 '); }
+  function tanggal(t) { return String(t || '').split(',')[0]; }
+  function tautan(kelas, teks, href, luar) { var a = el('a', kelas, teks); a.href = href; if (luar) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
+
+  fetch('/api/config').then(function (r) { return r.json(); }).then(function (c) { $('namaDesa').textContent = c.namaDesa; }).catch(function () {});
+
+  function tampilStatus(teks, galat, bisaCoba) {
+    $('app').hidden = true; $('statistik').hidden = true; $('status').hidden = false;
+    $('statusTeks').textContent = teks;
+    $('statusTeks').className = galat ? 'galat' : '';
+    $('btnCoba').hidden = !bisaCoba;
+  }
+
+  async function muat(dariSegarkan, selesai) {
+    if (!dariSegarkan) tampilStatus('Memuat data…', false, false);
+    try {
+      var r = await fetch('/api/rt?k=' + encodeURIComponent(TOKEN)).then(function (x) { return x.json(); });
+      if (!r.ok) {
+        if (dariSegarkan) { selesai(r.pesan); } else { tampilStatus(r.pesan, true, false); }
+        return;
+      }
+      DATA = r;
+      $('status').hidden = true; $('app').hidden = false; $('statistik').hidden = false;
+      if (kosBuka && !DATA.kos.some(function (k) { return k.kode === kosBuka; })) kosBuka = '';
+      render();
+      if (selesai) selesai('');
+    } catch (e) {
+      var p = 'Gagal terhubung. Periksa internet Anda lalu coba lagi.';
+      if (dariSegarkan) { selesai(p); } else { tampilStatus(p, true, true); }
+    }
+  }
+
+  $('btnCoba').onclick = function () { muat(false); };
+  $('btnSegarkan').onclick = function () {
+    var b = this; b.disabled = true; b.textContent = 'Memuat…'; $('banner').hidden = true;
+    muat(true, function (pesan) {
+      b.disabled = false; b.textContent = 'Segarkan data';
+      if (pesan) { $('banner').textContent = pesan; $('banner').hidden = false; }
+    });
+  };
+
+  function render() {
+    if (!DATA) return;
+    var aktif = DATA.penghuni.filter(function (p) { return p.status === 'Aktif'; }).length;
+    $('nAktif').textContent = aktif; $('nKos').textContent = DATA.kos.length;
+    $('diperbarui').textContent = 'Data per ' + DATA.diperbarui;
+    if (kosBuka) { $('layarBeranda').hidden = true; $('layarKos').hidden = false; gambarKos(); }
+    else { $('layarKos').hidden = true; $('layarBeranda').hidden = false; gambarBeranda(); }
+  }
+
+  $('cari').addEventListener('input', function () { kataCari = this.value.trim().toLowerCase(); gambarBeranda(); });
+
+  function gambarBeranda() {
+    var kotak = $('isiBeranda'); kotak.textContent = '';
+    if (kataCari) { gambarPencarian(kotak); return; }
+    if (!DATA.kos.length) { kotak.appendChild(pesanKosong('Belum ada kos terdaftar', 'Minta admin mengisi sheet Daftar_Kos.')); return; }
+    var daftar = DATA.kos.slice().sort(function (a, b) { return a.nama.localeCompare(b.nama); });
+    var kisi = el('div', 'kisi');
+    daftar.forEach(function (k) { kisi.appendChild(kartuKos(k)); });
+    kotak.appendChild(kisi);
+  }
+
+  function kartuKos(k) {
+    var b = el('button', 'kartu-kos'); b.type = 'button';
+    b.appendChild(el('span', 'kos-nama', k.nama));
+    var angka = el('span', 'kos-angka');
+    angka.appendChild(el('b', null, String(k.aktif)));
+    angka.appendChild(document.createTextNode('penghuni aktif'));
+    b.appendChild(angka);
+    b.appendChild(el('span', 'kos-buka', 'Lihat daftar penghuni ›'));
+    b.onclick = function () { kosBuka = k.kode; lihatKeluar = false; render(); window.scrollTo(0, 0); };
+    return b;
+  }
+
+  function gambarPencarian(kotak) {
+    var hasil = DATA.penghuni.filter(function (p) {
+      return (p.nama + ' ' + p.hp + ' ' + p.kamar + ' ' + p.kos).toLowerCase().indexOf(kataCari) >= 0;
+    });
+    hasil.sort(function (a, b) { if ((a.status === 'Aktif') !== (b.status === 'Aktif')) return a.status === 'Aktif' ? -1 : 1; return a.nama.localeCompare(b.nama); });
+    if (!hasil.length) { kotak.appendChild(pesanKosong('Tidak ada yang cocok', 'Coba ketik sebagian nama saja, atau periksa ejaannya.')); return; }
+    var teks = hasil.length + ' orang ditemukan';
+    if (hasil.length > BATAS_CARI) teks += '. Menampilkan ' + BATAS_CARI + ' pertama, ketik lebih lengkap untuk mempersempit.';
+    kotak.appendChild(el('p', 'hasil', teks));
+    var kisi = el('div', 'kisi');
+    hasil.slice(0, BATAS_CARI).forEach(function (p) { kisi.appendChild(kartuOrang(p, true)); });
+    kotak.appendChild(kisi);
+  }
+
+  $('btnKembali').onclick = function () { kosBuka = ''; render(); window.scrollTo(0, 0); };
+
+  function gambarKos() {
+    var k = DATA.kos.filter(function (x) { return x.kode === kosBuka; })[0];
+    var kotak = $('isiKos'); kotak.textContent = '';
+    $('namaKosBar').textContent = k.nama;
+    kotak.appendChild(el('h2', 'kos-kepala', k.nama));
+    if (k.alamat) kotak.appendChild(el('p', 'kecil', k.alamat));
+    if (k.pengelola || k.wa) {
+      var panel = el('div', 'panel');
+      panel.appendChild(el('p', null, 'Pengelola: ' + (k.pengelola || '-')));
+      if (k.wa) {
+        var dua = el('div', 'dua');
+        dua.appendChild(tautan('btn-garis', 'Telepon', 'tel:' + k.wa, false));
+        dua.appendChild(tautan('btn-garis', 'WhatsApp', 'https://wa.me/' + angkaWa(k.wa), true));
+        panel.appendChild(dua);
+      }
+      kotak.appendChild(panel);
+    }
+    var semua = DATA.penghuni.filter(function (p) { return p.kode === kosBuka; });
+    var aktif = semua.filter(function (p) { return p.status === 'Aktif'; }).sort(function (a, b) { return a.nama.localeCompare(b.nama); });
+    var keluar = semua.filter(function (p) { return p.status !== 'Aktif'; }).sort(function (a, b) { return b.keluarMs - a.keluarMs; });
+    kotak.appendChild(el('h3', 'judul-bagian', 'Penghuni aktif (' + aktif.length + ')'));
+    if (!aktif.length) { kotak.appendChild(pesanKosong('Belum ada penghuni', 'Belum ada yang mendaftar di kos ini.')); }
+    else { var kisi = el('div', 'kisi'); aktif.forEach(function (p) { kisi.appendChild(kartuOrang(p, false)); }); kotak.appendChild(kisi); }
+    if (keluar.length) {
+      var t = el('button', 'btn-garis lebar-penuh', (lihatKeluar ? 'Sembunyikan' : 'Tampilkan') + ' yang sudah keluar (' + keluar.length + ')');
+      t.type = 'button'; t.style.marginTop = '20px';
+      t.onclick = function () { lihatKeluar = !lihatKeluar; gambarKos(); };
+      kotak.appendChild(t);
+      if (lihatKeluar) { var kisi2 = el('div', 'kisi'); kisi2.style.marginTop = '12px'; keluar.forEach(function (p) { kisi2.appendChild(kartuOrang(p, false)); }); kotak.appendChild(kisi2); }
+    }
+    var bc = el('button', 'btn-teks garis', 'Cetak daftar ini');
+    bc.type = 'button'; bc.style.marginTop = '20px';
+    bc.onclick = function () { window.print(); };
+    kotak.appendChild(bc);
+  }
+
+  function kartuOrang(p, tampilKos) {
+    var aktif = p.status === 'Aktif';
+    var kartu = el('article', 'orang' + (aktif ? '' : ' keluar'));
+    var atas = el('div', 'orang-atas');
+    atas.appendChild(el('span', null, p.nama));
+    atas.lastChild.style.fontWeight = '750'; atas.lastChild.style.fontSize = '21px';
+    if (!aktif) atas.appendChild(el('span', 'lencana', 'Sudah keluar'));
+    kartu.appendChild(atas);
+    var info = (tampilKos ? p.kos + ', ' : '') + (p.kamar ? (tampilKos ? 'kamar ' : 'Kamar ') + p.kamar : 'Kamar tidak diisi');
+    kartu.appendChild(el('p', null, info));
+    kartu.appendChild(el('p', 'orang-hp', rapikanHp(p.hp)));
+    var tgl = 'Masuk ' + tanggal(p.masuk) + (!aktif && p.keluar ? ', keluar ' + tanggal(p.keluar) : '');
+    kartu.appendChild(el('p', 'kecil', tgl));
+
+    var aksi = el('div', 'orang-aksi');
+    [
+      { ada: p.adaKtp, jenis: 'ktp', label: 'Lihat KTP', utama: true },
+      { ada: p.adaBukuNikah, jenis: 'nikah', label: 'Lihat Buku Nikah', utama: false },
+      { ada: p.adaKK, jenis: 'kk', label: 'Lihat KK', utama: false }
+    ].forEach(function (dok) {
+      if (!dok.ada) return;
+      var tombol = el('button', dok.utama ? 'btn utama' : 'btn-garis', dok.label);
+      tombol.type = 'button';
+      tombol.onclick = function () { bukaDokumen(p, dok.jenis, dok.label.replace('Lihat ', '')); };
+      aksi.appendChild(tombol);
+    });
+    aksi.appendChild(tautan('btn-garis', 'Telepon', 'tel:' + p.hp, false));
+    aksi.appendChild(tautan('btn-garis', 'WhatsApp', 'https://wa.me/' + angkaWa(p.hp), true));
+    kartu.appendChild(aksi);
+    return kartu;
+  }
+
+  function pesanKosong(judul, isi) { var d = el('div', 'kosong'); d.appendChild(el('b', null, judul)); d.appendChild(document.createTextNode(isi)); return d; }
+
+  /* Dokumen ditampilkan langsung lewat URL (img/iframe src), tidak lagi lewat base64 bolak-balik. */
+  function bukaDokumen(p, jenis, labelDok) {
+    $('ktpJudul').textContent = p.nama + ' — ' + labelDok;
+    $('ktpSub').textContent = p.kos + (p.kamar ? ', kamar ' + p.kamar : '');
+    var isi = $('ktpIsi'); isi.textContent = '';
+    var url = '/api/dokumen?k=' + encodeURIComponent(TOKEN) + '&id=' + encodeURIComponent(p.id) + '&jenis=' + jenis + '&t=' + Date.now();
+
+    if (jenis === 'ktp' || true) {
+      // Dicoba sebagai gambar dulu; kalau gagal (berarti PDF atau error), tampilkan via iframe.
+      var img = new Image();
+      img.onload = function () {
+        isi.textContent = '';
+        img.alt = labelDok + ' ' + p.nama;
+        img.style.width = '100%'; img.style.borderRadius = '8px'; img.style.border = '1px solid var(--garis)';
+        isi.appendChild(img);
+        isi.appendChild(el('p', 'kecil', 'Cubit layar dengan dua jari untuk memperbesar.'));
+      };
+      img.onerror = function () {
+        isi.textContent = '';
+        var fr = document.createElement('iframe');
+        fr.src = url; fr.title = labelDok + ' ' + p.nama;
+        isi.appendChild(fr);
+        var unduh = tautan('btn-garis lebar-penuh', 'Buka / unduh dokumen', url, true);
+        unduh.style.marginTop = '12px';
+        isi.appendChild(unduh);
+      };
+      isi.textContent = 'Memuat ' + labelDok + '…';
+      img.src = url;
+    }
+    $('ktpLatar').hidden = false;
+    $('ktpTutup').focus();
+  }
+
+  function tutupKtp() { $('ktpLatar').hidden = true; $('ktpIsi').textContent = ''; }
+  $('ktpTutup').onclick = tutupKtp;
+  $('ktpLatar').addEventListener('click', function (ev) { if (ev.target === this) tutupKtp(); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !$('ktpLatar').hidden) tutupKtp(); });
+
+  muat(false);
+})();
+</script>
+</body>
+</html>

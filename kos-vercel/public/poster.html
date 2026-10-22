@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poster QR kos</title>
+<style>
+  :root {
+    --gradasi: linear-gradient(100deg, #4d1416 0%, #6b1e22 55%, #7c2327 100%);
+    --brand: #7a2024; --brand-tua: #571619; --brand-muda: #f7e7e4; --emas: #efc36a;
+    --krem: #f6f0e9; --tinta: #2b1a1b; --samar: #62554f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e4d9cd; color: var(--tinta); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bar { max-width: 794px; margin: 0 auto; padding: 14px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+  .bar p { margin: 0; font-size: 14px; color: var(--samar); }
+  .bar button { min-height: 44px; padding: 0 20px; border: 0; border-radius: 10px; background: var(--brand); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  .peringatan { max-width: 560px; margin: 40px auto; padding: 20px; border: 2px solid #a02c2c; border-radius: 12px; background: #fff; color: #a02c2c; }
+  .a4 { position: relative; width: 210mm; height: 297mm; margin: 0 auto 24px; background: var(--krem); overflow: hidden; display: flex; flex-direction: column; }
+  .a4::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 12px; background: linear-gradient(90deg, #c9963a 0 42%, #3f67d8 42% 91%, #2f8a5a 91% 100%); }
+  .atas { position: relative; padding: 44px 56px 112px; color: #fff; background: radial-gradient(circle at 94% -6%, rgba(255,255,255,.10) 0 190px, transparent 191px), radial-gradient(circle at 80% 112%, rgba(239,195,106,.16) 0 130px, transparent 131px), var(--gradasi); }
+  .brand { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; color: var(--emas); }
+  .desa { margin: 6px 0 0; font-size: 20px; opacity: .9; }
+  h1 { margin: 18px 0 0; font-size: 60px; line-height: 1.04; font-weight: 850; letter-spacing: -0.02em; }
+  h1 .emas { color: var(--emas); }
+  .kartu { position: relative; margin: -74px 56px 0; padding: 28px 30px 24px; text-align: center; background: #fff; border-radius: 32px; box-shadow: 0 18px 40px rgba(43,15,17,.18); }
+  .pill { display: inline-block; max-width: 100%; margin: 0 0 20px; padding: 8px 28px; border-radius: 999px; background: var(--brand-muda); color: var(--brand-tua); font-size: 30px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+  .bingkai { position: relative; display: inline-block; padding: 24px; }
+  .bingkai img { display: block; width: 300px; height: 300px; }
+  .sudut { position: absolute; width: 54px; height: 54px; border: 0 solid var(--brand); }
+  .ka { top: 0; left: 0; border-top-width: 9px; border-left-width: 9px; border-top-left-radius: 22px; }
+  .kb { top: 0; right: 0; border-top-width: 9px; border-right-width: 9px; border-top-right-radius: 22px; }
+  .ki { bottom: 0; left: 0; border-bottom-width: 9px; border-left-width: 9px; border-bottom-left-radius: 22px; }
+  .kj { bottom: 0; right: 0; border-bottom-width: 9px; border-right-width: 9px; border-bottom-right-radius: 22px; }
+  .scan { margin: 14px 0 0; font-size: 26px; font-weight: 800; }
+  .scan-kecil { margin: 2px 0 0; font-size: 17px; color: var(--samar); }
+  .langkah { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 24px 56px 0; }
+  .langkah > div { padding: 18px 22px 20px; background: #fff; border-radius: 22px; }
+  .langkah .garis { display: block; width: 44px; height: 6px; margin-bottom: 12px; border-radius: 3px; background: var(--brand); }
+  .langkah h2 { margin: 0 0 6px; font-size: 24px; color: var(--brand); }
+  .langkah p { margin: 0; font-size: 19px; line-height: 1.45; }
+  .bawah { margin-top: auto; padding: 0 56px 34px; text-align: center; font-size: 19px; color: var(--samar); }
+  .bawah b { color: var(--brand-tua); }
+  @media print { @page { size: A4; margin: 0; } body { background: #fff; } .bar { display: none; } .a4 { margin: 0; } }
+</style>
+</head>
+<body>
+<div class="bar">
+  <p id="barTeks">Memuat…</p>
+  <button type="button" id="btnCetak" hidden onclick="window.print()">Cetak poster</button>
+</div>
+<div id="isi"></div>
+
+<script>
+(function () {
+  var KODE = new URLSearchParams(location.search).get('kos') || '';
+  var isi = document.getElementById('isi');
+
+  function peringatan(teks) {
+    document.getElementById('barTeks').textContent = '';
+    isi.innerHTML = '';
+    var d = document.createElement('div');
+    d.className = 'peringatan';
+    d.innerHTML = '<b>Poster belum bisa dibuat.</b><br>' + teks;
+    isi.appendChild(d);
+  }
+
+  if (!KODE) { peringatan('Kode kos tidak ditemukan di alamat. Buka halaman ini lewat link kolom "Link Poster" di sheet Daftar_Kos.'); return; }
+
+  Promise.all([
+    fetch('/api/kos?kos=' + encodeURIComponent(KODE)).then(function (r) { return r.json(); }),
+    fetch('/api/config').then(function (r) { return r.json(); }).catch(function () { return { namaDesa: '' }; })
+  ]).then(function (hasil) {
+    var kos = hasil[0], cfg = hasil[1];
+    if (!kos.ok) { peringatan(kos.pesan); return; }
+
+    document.getElementById('barTeks').textContent = 'Tekan tombol cetak, lalu pilih printer atau "Simpan sebagai PDF" (kertas A4).';
+    document.getElementById('btnCetak').hidden = false;
+
+    var tujuan = location.origin + '/?kos=' + encodeURIComponent(KODE);
+    var qr = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=0&data=' + encodeURIComponent(tujuan);
+
+    var bawah = kos.pengelola
+      ? 'Pertanyaan? Hubungi pengelola kos: <b>' + escapeHtml(kos.pengelola) + '</b>' + (kos.wa ? ' (' + escapeHtml(kos.wa) + ')' : '')
+      : 'Pertanyaan? Hubungi pengelola kos atau Pak RT.';
+
+    isi.innerHTML =
+      '<div class="a4">' +
+        '<div class="atas">' +
+          '<p class="brand">PENDATAAN PENGHUNI KOS</p>' +
+          '<p class="desa">' + escapeHtml(cfg.namaDesa || '') + '</p>' +
+          '<h1>Wajib lapor<br><span class="emas">penghuni kos</span></h1>' +
+        '</div>' +
+        '<div class="kartu">' +
+          '<div class="pill">' + escapeHtml(kos.nama) + '</div><br>' +
+          '<div class="bingkai">' +
+            '<span class="sudut ka"></span><span class="sudut kb"></span><span class="sudut ki"></span><span class="sudut kj"></span>' +
+            '<img src="' + qr + '" alt="QR pendataan penghuni ' + escapeHtml(kos.nama) + '">' +
+          '</div>' +
+          '<p class="scan">Scan dengan kamera HP</p>' +
+          '<p class="scan-kecil">Tidak perlu install aplikasi</p>' +
+        '</div>' +
+        '<div class="langkah">' +
+          '<div><span class="garis"></span><h2>Baru masuk kos</h2><p>Scan QR, isi nama dan nomor HP, lalu unggah KTP.</p></div>' +
+          '<div><span class="garis"></span><h2>Mau pindah</h2><p>Scan QR, pilih "Saya keluar kos", lalu cabut data Anda.</p></div>' +
+        '</div>' +
+        '<div class="bawah">' + bawah + '</div>' +
+      '</div>';
+  }).catch(function () {
+    peringatan('Gagal terhubung ke server. Periksa internet lalu muat ulang halaman.');
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  }
+})();
+</script>
+</body>
+</html>

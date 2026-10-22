@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lapor penghuni kos</title>
+<style>
+  :root {
+    --gradasi: linear-gradient(90deg, #4d1416 0%, #6b1e22 55%, #7c2327 100%);
+    --ok: #1f6b46; --ok-muda: #e0f1e7;
+    --latar: #f6f0e9; --kertas: #ffffff; --tinta: #2b1a1b; --samar: #62554f; --garis: #e2d8ce;
+    --brand: #7a2024; --brand-tua: #571619; --brand-muda: #f7e7e4;
+    --merah: #a83232; --merah-muda: #fbeaea;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--latar); color: var(--tinta); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 16px; line-height: 1.5; }
+  [hidden] { display: none !important; }
+  .kepala { position: relative; background: var(--gradasi); color: #fff; padding: 28px 20px 56px; }
+  .kepala::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: linear-gradient(90deg, #c9963a 0 42%, #3f67d8 42% 91%, #2f8a5a 91% 100%); }
+  .kepala-isi { max-width: 520px; margin: 0 auto; }
+  .brand { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: .09em; color: #efc36a; }
+  .desa { margin: 0; font-size: 14px; opacity: .85; }
+  .nama-kos { margin: 6px 0 4px; font-size: 32px; line-height: 1.15; font-weight: 750; overflow-wrap: anywhere; }
+  .sub { margin: 0; font-size: 15px; opacity: .9; }
+  main { position: relative; max-width: 520px; margin: -36px auto 40px; padding: 0 16px; }
+  .kertas { background: var(--kertas); border-radius: 14px; padding: 20px 18px 22px; box-shadow: 0 1px 2px rgba(22,35,43,.12); }
+  .tab { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--brand-muda); border-radius: 12px; margin-bottom: 20px; }
+  .tab button { min-height: 48px; border: 0; border-radius: 9px; background: transparent; color: var(--brand-tua); font: inherit; font-weight: 600; cursor: pointer; }
+  .tab button[aria-selected="true"] { background: var(--brand); color: #fff; }
+  h2 { margin: 0 0 4px; font-size: 20px; }
+  .ket { margin: 0 0 18px; color: var(--samar); font-size: 15px; }
+  label.judul { display: block; margin: 16px 0 6px; font-weight: 600; }
+  .opsional { font-weight: 400; color: var(--samar); }
+  input[type="text"], input[type="tel"] { width: 100%; min-height: 50px; padding: 12px 14px; border: 1.5px solid var(--garis); border-radius: 10px; background: #fff; color: var(--tinta); font: inherit; }
+  input:focus-visible, button:focus-visible, .pilih-file:focus-within { outline: 3px solid #f2b705; outline-offset: 2px; }
+  .pilih-file { position: relative; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 14px; border: 1.5px dashed var(--brand); border-radius: 10px; background: var(--brand-muda); cursor: pointer; }
+  .pilih-file input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .pilih-file .ikon { font-size: 24px; }
+  .pilih-file .teks { font-weight: 600; color: var(--brand-tua); overflow-wrap: anywhere; }
+  .pilih-file .teks small { display: block; font-weight: 400; color: var(--samar); }
+  .setuju { display: flex; gap: 12px; align-items: flex-start; margin: 20px 0 4px; font-size: 15px; }
+  .setuju input { width: 24px; height: 24px; margin: 1px 0 0; flex: none; accent-color: var(--brand); }
+  .tombol { width: 100%; min-height: 54px; margin-top: 18px; border: 0; border-radius: 10px; background: var(--brand); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  .tombol:hover { background: var(--brand-tua); }
+  .tombol[disabled] { background: #b99093; cursor: progress; }
+  .tombol.kedua { background: #fff; color: var(--brand-tua); border: 1.5px solid var(--brand); }
+  .galat { margin: 14px 0 0; padding: 12px 14px; border-radius: 10px; background: var(--merah-muda); color: var(--merah); font-size: 15px; }
+  .hasil { text-align: center; padding: 8px 0 4px; }
+  .hasil .centang { width: 64px; height: 64px; margin: 0 auto 12px; display: grid; place-items: center; border-radius: 50%; background: var(--ok-muda); color: var(--ok); font-size: 34px; font-weight: 700; }
+  .kode-id { display: inline-block; margin: 6px 0 12px; padding: 8px 16px; border-radius: 10px; background: var(--latar); font-size: 20px; font-weight: 700; letter-spacing: .04em; }
+  .daftar-orang { list-style: none; margin: 16px 0 0; padding: 0; }
+  .daftar-orang li { padding: 14px; margin-bottom: 10px; border: 1.5px solid var(--garis); border-radius: 10px; }
+  .daftar-orang .nama { font-weight: 700; font-size: 18px; }
+  .daftar-orang .detail { color: var(--samar); font-size: 14px; }
+  .catatan { margin: 18px 4px 0; font-size: 13px; color: var(--samar); text-align: center; }
+</style>
+</head>
+<body>
+
+<header class="kepala">
+  <div class="kepala-isi">
+    <p class="brand" id="brandTeks">PENDATAAN PENGHUNI KOS</p>
+    <p class="desa" id="namaDesa">&nbsp;</p>
+    <h1 class="nama-kos" id="namaKos">Memuat…</h1>
+    <p class="sub">Lapor penghuni kos untuk pendataan RT</p>
+  </div>
+</header>
+
+<main>
+  <div class="kertas" id="galatAwalKotak" hidden>
+    <h2>QR belum bisa dipakai</h2>
+    <p class="galat" id="galatAwal"></p>
+  </div>
+
+  <div class="kertas" id="app" hidden>
+    <div class="tab" role="tablist">
+      <button type="button" role="tab" id="tabMasuk" aria-selected="true">Saya masuk kos</button>
+      <button type="button" role="tab" id="tabKeluar" aria-selected="false">Saya keluar kos</button>
+    </div>
+
+    <section id="panelMasuk">
+      <form id="formMasuk" novalidate>
+        <h2>Daftarkan diri Anda</h2>
+        <p class="ket">Isi sekali saat mulai tinggal di kos ini. Data tercatat otomatis di RT.</p>
+
+        <label class="judul" for="nama">Nama lengkap (sesuai KTP)</label>
+        <input type="text" id="nama" autocomplete="name" maxlength="80">
+
+        <label class="judul" for="hp">Nomor HP / WhatsApp</label>
+        <input type="tel" id="hp" inputmode="tel" autocomplete="tel" placeholder="081234567890" maxlength="16">
+
+        <label class="judul" for="kamar">Nomor kamar <span class="opsional">(boleh dikosongkan)</span></label>
+        <input type="text" id="kamar" maxlength="20" placeholder="Contoh: 3 atau B2">
+
+        <label class="judul" for="ktp">File KTP</label>
+        <label class="pilih-file" for="ktp">
+          <span class="ikon" aria-hidden="true">📎</span>
+          <span class="teks" id="namaFile">Pilih file atau foto KTP<small>PDF, JPG, atau PNG. Maksimal 2 MB.</small></span>
+          <input type="file" id="ktp" accept="application/pdf,image/jpeg,image/png">
+        </label>
+
+        <label class="judul" for="nikah">Buku Nikah <span class="opsional">(boleh dikosongkan)</span></label>
+        <label class="pilih-file" for="nikah">
+          <span class="ikon" aria-hidden="true">📎</span>
+          <span class="teks" id="namaFileNikah">Pilih file atau foto Buku Nikah<small>PDF, JPG, atau PNG. Maksimal 2 MB.</small></span>
+          <input type="file" id="nikah" accept="application/pdf,image/jpeg,image/png">
+        </label>
+
+        <label class="judul" for="kk">Kartu Keluarga (KK) <span class="opsional">(boleh dikosongkan)</span></label>
+        <label class="pilih-file" for="kk">
+          <span class="ikon" aria-hidden="true">📎</span>
+          <span class="teks" id="namaFileKK">Pilih file atau foto KK<small>PDF, JPG, atau PNG. Maksimal 2 MB.</small></span>
+          <input type="file" id="kk" accept="application/pdf,image/jpeg,image/png">
+        </label>
+
+        <label class="setuju">
+          <input type="checkbox" id="setuju">
+          <span>Data yang saya isi benar. Saya setuju dokumen saya dipakai hanya untuk pendataan penghuni oleh pengurus RT dan pengelola kos.</span>
+        </label>
+
+        <p class="galat" id="galatMasuk" role="alert" hidden></p>
+        <button type="submit" class="tombol" id="kirim">Kirim data penghuni</button>
+      </form>
+    </section>
+
+    <section id="hasilMasuk" class="hasil" hidden>
+      <div class="centang" aria-hidden="true">✓</div>
+      <h2>Data Anda sudah tercatat</h2>
+      <p class="ket" style="margin-bottom:6px">Kode pendaftaran Anda:</p>
+      <div class="kode-id" id="kodeId"></div>
+      <p class="ket">Simpan tangkapan layar ini. Saat pindah, scan QR kos lagi lalu pilih <b>Saya keluar kos</b>.</p>
+    </section>
+
+    <section id="panelKeluar" hidden>
+      <h2>Cabut data saat pindah</h2>
+      <p class="ket">Masukkan nomor HP yang Anda pakai saat mendaftar.</p>
+      <form id="formCari" novalidate>
+        <label class="judul" for="hpKeluar" style="margin-top:0">Nomor HP / WhatsApp</label>
+        <input type="tel" id="hpKeluar" inputmode="tel" autocomplete="tel" placeholder="081234567890" maxlength="16">
+        <p class="galat" id="galatKeluar" role="alert" hidden></p>
+        <button type="submit" class="tombol kedua" id="cari">Cari data saya</button>
+      </form>
+      <ul class="daftar-orang" id="daftarOrang"></ul>
+    </section>
+
+    <section id="hasilKeluar" class="hasil" hidden>
+      <div class="centang" aria-hidden="true">✓</div>
+      <h2>Data Anda sudah dicabut</h2>
+      <p class="ket">Terima kasih. Status Anda tercatat sebagai sudah keluar dari kos ini.</p>
+    </section>
+  </div>
+
+  <p class="catatan">Data dokumen disimpan tertutup dan hanya bisa dibuka pengurus RT.</p>
+</main>
+
+<script>
+(function () {
+  var KODE = new URLSearchParams(location.search).get('kos') || '';
+  var MAKS_MB = 2;
+  var hpKeluarTerakhir = '';
+
+  function $(id) { return document.getElementById(id); }
+  function tampil(el, ya) { el.hidden = !ya; }
+  function pesan(el, teks) { el.textContent = teks || ''; tampil(el, !!teks); }
+
+  async function panggil(url, body) {
+    var r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    return r.json();
+  }
+
+  fetch('/api/config').then(function (r) { return r.json(); }).then(function (c) { $('namaDesa').textContent = c.namaDesa; }).catch(function () {});
+
+  function galatAwal(teks) {
+    $('namaKos').textContent = 'QR tidak valid';
+    pesan($('galatAwal'), teks);
+    tampil($('galatAwalKotak'), true);
+    tampil($('app'), false);
+  }
+
+  (async function muatInfoKos() {
+    if (!KODE) { galatAwal('Kode kos tidak ditemukan. Scan QR yang ditempel di kos Anda.'); return; }
+    try {
+      var r = await fetch('/api/kos?kos=' + encodeURIComponent(KODE)).then(function (x) { return x.json(); });
+      if (!r.ok) { galatAwal(r.pesan); return; }
+      $('namaKos').textContent = r.nama;
+      tampil($('app'), true);
+    } catch (e) {
+      galatAwal('Gagal terhubung. Periksa internet lalu muat ulang halaman.');
+    }
+  })();
+
+  function pilihTab(masuk) {
+    $('tabMasuk').setAttribute('aria-selected', masuk);
+    $('tabKeluar').setAttribute('aria-selected', !masuk);
+    tampil($('panelMasuk'), masuk && $('hasilMasuk').hidden);
+    tampil($('panelKeluar'), !masuk && $('hasilKeluar').hidden);
+  }
+  $('tabMasuk').onclick = function () { pilihTab(true); };
+  $('tabKeluar').onclick = function () { pilihTab(false); };
+
+  function pasangPilihFile(idInput, idLabel, placeholder) {
+    $(idInput).addEventListener('change', function () {
+      var f = this.files[0];
+      $(idLabel).innerHTML = '';
+      $(idLabel).textContent = f ? f.name : placeholder;
+      var kecil = document.createElement('small');
+      kecil.textContent = 'PDF, JPG, atau PNG. Maksimal ' + MAKS_MB + ' MB.';
+      $(idLabel).appendChild(kecil);
+    });
+  }
+  pasangPilihFile('ktp', 'namaFile', 'Pilih file atau foto KTP');
+  pasangPilihFile('nikah', 'namaFileNikah', 'Pilih file atau foto Buku Nikah');
+  pasangPilihFile('kk', 'namaFileKK', 'Pilih file atau foto KK');
+
+  function bacaFile(file) {
+    return new Promise(function (ok, gagal) {
+      var r = new FileReader();
+      r.onload = function () { ok(String(r.result).split(',')[1]); };
+      r.onerror = function () { gagal(new Error('File tidak bisa dibaca. Coba pilih ulang.')); };
+      r.readAsDataURL(file);
+    });
+  }
+
+  /* Foto dikecilkan otomatis agar cepat terkirim; PDF dikirim apa adanya. */
+  function siapkanFile(file) {
+    return new Promise(function (ok, gagal) {
+      if (file.type === 'application/pdf') {
+        if (file.size > MAKS_MB * 1024 * 1024) { gagal(new Error('Ukuran PDF maksimal ' + MAKS_MB + ' MB.')); return; }
+        bacaFile(file).then(function (b64) { ok({ tipe: file.type, base64: b64 }); }, gagal);
+        return;
+      }
+      if (!/^image\/(jpeg|png)$/.test(file.type)) { gagal(new Error('Format file harus PDF, JPG, atau PNG.')); return; }
+      var img = new Image();
+      img.onload = function () {
+        var skala = Math.min(1, 1600 / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * skala);
+        c.height = Math.round(img.height * skala);
+        var g = c.getContext('2d');
+        g.fillStyle = '#ffffff';
+        g.fillRect(0, 0, c.width, c.height);
+        g.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        ok({ tipe: 'image/jpeg', base64: c.toDataURL('image/jpeg', 0.8).split(',')[1] });
+      };
+      img.onerror = function () { gagal(new Error('Foto tidak bisa dibaca. Coba foto ulang.')); };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /** Unggah satu file ke /api/upload. Mengembalikan url Drive, atau '' kalau file tidak dipilih. */
+  async function unggahOpsional(fileInputId, label) {
+    var file = $(fileInputId).files[0];
+    if (!file) return '';
+    var siap = await siapkanFile(file);
+    var r = await panggil('/api/upload', { kode: KODE, label: label, tipe: siap.tipe, base64: siap.base64 });
+    if (!r.ok) throw new Error(r.pesan);
+    return r.url;
+  }
+
+  $('formMasuk').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var nama = $('nama').value.trim();
+    var hp = $('hp').value.trim();
+    var fileKtp = $('ktp').files[0];
+    var galat = $('galatMasuk');
+    pesan(galat, '');
+
+    if (nama.length < 3) { pesan(galat, 'Isi nama lengkap Anda.'); $('nama').focus(); return; }
+    if (!/^(\+62|62|0)8\d{8,12}$/.test(hp.replace(/[\s-]/g, ''))) { pesan(galat, 'Nomor HP belum benar. Contoh: 081234567890'); $('hp').focus(); return; }
+    if (!fileKtp) { pesan(galat, 'Pilih file KTP terlebih dulu.'); return; }
+    if (!$('setuju').checked) { pesan(galat, 'Centang pernyataan persetujuan di atas tombol.'); return; }
+
+    var tombol = $('kirim');
+    tombol.disabled = true;
+
+    try {
+      tombol.textContent = 'Mengunggah KTP…';
+      var siapKtp = await siapkanFile(fileKtp);
+      var hasilKtp = await panggil('/api/upload', { kode: KODE, label: 'ktp', tipe: siapKtp.tipe, base64: siapKtp.base64 });
+      if (!hasilKtp.ok) throw new Error(hasilKtp.pesan);
+
+      tombol.textContent = 'Mengunggah dokumen lain…';
+      var nikahUrl = await unggahOpsional('nikah', 'nikah');
+      var kkUrl = await unggahOpsional('kk', 'kk');
+
+      tombol.textContent = 'Menyimpan data…';
+      var r = await panggil('/api/daftar', {
+        kode: KODE, nama: nama, hp: hp, kamar: $('kamar').value, setuju: true,
+        ktpFileId: hasilKtp.fileId, ktpUrl: hasilKtp.url, nikahUrl: nikahUrl, kkUrl: kkUrl
+      });
+      if (!r.ok) throw new Error(r.pesan);
+
+      $('kodeId').textContent = r.id;
+      tampil($('panelMasuk'), false);
+      tampil($('hasilMasuk'), true);
+      window.scrollTo(0, 0);
+    } catch (err) {
+      pesan(galat, err.message || 'Data belum terkirim. Periksa internet lalu coba lagi.');
+      tombol.disabled = false;
+      tombol.textContent = 'Kirim data penghuni';
+    }
+  });
+
+  $('formCari').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var hp = $('hpKeluar').value.trim();
+    var galat = $('galatKeluar');
+    var daftar = $('daftarOrang');
+    pesan(galat, '');
+    daftar.innerHTML = '';
+
+    if (!/^(\+62|62|0)8\d{8,12}$/.test(hp.replace(/[\s-]/g, ''))) { pesan(galat, 'Nomor HP belum benar. Contoh: 081234567890'); return; }
+
+    var tombol = $('cari');
+    tombol.disabled = true;
+    tombol.textContent = 'Mencari…';
+    hpKeluarTerakhir = hp;
+
+    try {
+      var r = await panggil('/api/cari', { kode: KODE, hp: hp });
+      tombol.disabled = false;
+      tombol.textContent = 'Cari data saya';
+      if (!r.ok) { pesan(galat, r.pesan); return; }
+      if (r.hasil.length === 0) { pesan(galat, 'Tidak ada data aktif dengan nomor ini di kos ini. Pastikan nomor sama dengan saat mendaftar.'); return; }
+      r.hasil.forEach(function (o) { daftar.appendChild(buatBaris(o)); });
+    } catch (e) {
+      tombol.disabled = false;
+      tombol.textContent = 'Cari data saya';
+      pesan(galat, 'Gagal terhubung. Periksa internet lalu coba lagi.');
+    }
+  });
+
+  function buatBaris(o) {
+    var li = document.createElement('li');
+    var nama = document.createElement('div');
+    nama.className = 'nama';
+    nama.textContent = o.nama;
+    var detail = document.createElement('div');
+    detail.className = 'detail';
+    detail.textContent = o.kamar ? 'Kamar ' + o.kamar : 'Tanpa nomor kamar';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tombol';
+    btn.textContent = 'Konfirmasi keluar kos';
+    btn.onclick = async function () {
+      btn.disabled = true;
+      btn.textContent = 'Memproses…';
+      try {
+        var r = await panggil('/api/keluar', { id: o.id, kode: KODE, hp: hpKeluarTerakhir });
+        if (!r.ok) { btn.disabled = false; btn.textContent = 'Konfirmasi keluar kos'; pesan($('galatKeluar'), r.pesan); return; }
+        tampil($('panelKeluar'), false);
+        tampil($('hasilKeluar'), true);
+        window.scrollTo(0, 0);
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = 'Konfirmasi keluar kos';
+        pesan($('galatKeluar'), 'Gagal terhubung. Coba lagi.');
+      }
+    };
+    li.appendChild(nama);
+    li.appendChild(detail);
+    li.appendChild(btn);
+    return li;
+  }
+})();
+</script>
+</body>
+</html>
